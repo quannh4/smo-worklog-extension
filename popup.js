@@ -5,7 +5,7 @@ let selectedProject = null;
 let projectsList = [];
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Attach event listener to start button
     const startButton = document.getElementById('startButton');
     if (startButton) {
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Use event delegation for dynamically created buttons
-    document.body.addEventListener('click', function(e) {
+    document.body.addEventListener('click', function (e) {
         const target = e.target;
 
         // Handle different button clicks
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle select and input changes
-    document.body.addEventListener('change', function(e) {
+    document.body.addEventListener('change', function (e) {
         const target = e.target;
 
         if (target.id === 'projectSelect') {
@@ -459,20 +459,33 @@ function updateWorklogPreview() {
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
         return `
             <div class="day-item">
-                <span>${dayName}, ${dateStr}</span>
-                <span style="color: #4CAF50; font-weight: bold;">${workHours} hours</span>
+                <label style="display: flex; align-items: center; cursor: pointer; flex: 1;">
+                    <input type="checkbox" 
+                           class="leave-checkbox" 
+                           data-date="${dateStr}" 
+                           checked
+                           style="margin-right: 10px; cursor: pointer; width: 18px; height: 18px;" />
+                    <span style="flex: 1;">${dayName}, ${dateStr}</span>
+                    <span style="color: #4CAF50; font-weight: bold;">${workHours} hours</span>
+                </label>
             </div>
         `;
     }).join('');
 
+    // Calculate initial totals (all working days)
     const totalHours = weekdays.length * workHours;
 
     preview.innerHTML = `
         <div class="worklog-summary">
             <h4 style="margin-top: 0;">📋 Worklog Preview</h4>
             <p><strong>Project:</strong> ${selectedProject.name} (${selectedProject.code})</p>
-            <p><strong>Total Days:</strong> ${weekdays.length} weekdays</p>
-            <p><strong>Total Hours:</strong> ${totalHours} hours</p>
+            <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 3px solid #ff9800;">
+                <p style="margin: 5px 0;">
+                    <strong>💡 Tip:</strong> All days are selected by default. Uncheck the boxes for days you're on leave (no work will be logged for those days)
+                </p>
+            </div>
+            <p><strong>Total Days:</strong> <span id="workingDaysCount">${weekdays.length}</span> weekdays</p>
+            <p><strong>Total Hours:</strong> <span id="totalHoursCount">${totalHours}</span> hours</p>
             <div style="margin-top: 15px;">
                 <strong>Days to log:</strong>
                 ${dayItems}
@@ -480,7 +493,49 @@ function updateWorklogPreview() {
         </div>
     `;
 
+    // Add event listeners for checkboxes
+    const checkboxes = preview.querySelectorAll('.leave-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateTotals);
+    });
+
     submitBtn.disabled = false;
+}
+
+function updateTotals() {
+    const workHoursInput = document.getElementById('workHours');
+    const workHours = parseFloat(workHoursInput.value) || 8;
+
+    const checkboxes = document.querySelectorAll('.leave-checkbox');
+    const workingDays = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const totalDays = checkboxes.length;
+    const leaveDays = totalDays - workingDays;
+    const totalHours = workingDays * workHours;
+
+    // Update the display
+    const workingDaysCount = document.getElementById('workingDaysCount');
+    const totalHoursCount = document.getElementById('totalHoursCount');
+
+    if (workingDaysCount) {
+        workingDaysCount.textContent = workingDays;
+    }
+    if (totalHoursCount) {
+        totalHoursCount.textContent = totalHours;
+    }
+
+    // Visual feedback for leave days (unchecked)
+    checkboxes.forEach(checkbox => {
+        const dayItem = checkbox.closest('.day-item');
+        if (!checkbox.checked) {
+            dayItem.style.background = '#ffebee';
+            dayItem.style.opacity = '0.6';
+            dayItem.style.textDecoration = 'line-through';
+        } else {
+            dayItem.style.background = '#f5f5f5';
+            dayItem.style.opacity = '1';
+            dayItem.style.textDecoration = 'none';
+        }
+    });
 }
 
 async function submitWorklog() {
@@ -503,8 +558,28 @@ async function submitWorklog() {
     const endDate = new Date(window.selectedEndDate);
     const weekdays = getWeekdaysBetween(startDate, endDate);
 
-    // Generate workLogs payload
-    const workLogs = weekdays.map(date => ({
+    // Get all leave days (unchecked checkboxes)
+    const checkboxes = document.querySelectorAll('.leave-checkbox');
+    const leaveDates = new Set(
+        Array.from(checkboxes)
+            .filter(cb => !cb.checked)
+            .map(cb => cb.dataset.date)
+    );
+
+    // Filter out leave days from weekdays
+    const workingDays = weekdays.filter(date => {
+        const dateStr = date.toISOString().split('T')[0];
+        return !leaveDates.has(dateStr);
+    });
+
+    // Check if there are any working days
+    if (workingDays.length === 0) {
+        alert('❌ No working days selected! Please check at least one day or select a different date range.');
+        return;
+    }
+
+    // Generate workLogs payload only for working days
+    const workLogs = workingDays.map(date => ({
         date: date.toISOString().split('T')[0],
         description: null,
         workHours: workHours,
@@ -537,11 +612,14 @@ async function submitWorklog() {
         const result = await response.json();
 
         // Show success message
-        const totalHours = weekdays.length * workHours;
+        const totalHours = workingDays.length * workHours;
+        const leaveDaysCount = weekdays.length - workingDays.length;
+
         document.getElementById('worklogPreview').innerHTML = `
             <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 15px 0;">
                 <h4 style="margin-top: 0;">✅ Worklog Submitted Successfully!</h4>
-                <p>Logged ${weekdays.length} days (${totalHours} hours) for project: <strong>${selectedProject.name}</strong></p>
+                <p>Logged ${workingDays.length} days (${totalHours} hours) for project: <strong>${selectedProject.name}</strong></p>
+                ${leaveDaysCount > 0 ? `<p style="color: #856404; background: #fff3cd; padding: 8px; border-radius: 3px;">📅 Skipped ${leaveDaysCount} day(s) marked as leave</p>` : ''}
                 <pre style="background: #fff; color: #333; padding: 10px; margin-top: 10px;">${JSON.stringify(result, null, 2)}</pre>
             </div>
         `;

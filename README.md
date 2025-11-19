@@ -1,6 +1,11 @@
 # SMO Worklog Tool - Chrome Extension
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 A browser extension to easily log your work hours to SRA SmartOSC.
+
+> **Open Source Project** - Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Features
 
@@ -141,10 +146,20 @@ To modify the extension:
 - Verify work hours are between 0.5-24
 - Check that date range contains weekdays
 
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to:
+- Fork and clone the repository
+- Create feature branches
+- Submit pull requests
+- Report bugs and suggest features
+
 ## Version
 
 1.0.0 - Initial release
 
 ## License
 
-Personal use only
+MIT License - see [LICENSE](LICENSE) file for details.
+
+This project is open source and free to use, modify, and distribute.

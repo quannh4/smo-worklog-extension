@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMO Worklog Tool</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <h1>⏰ SMO Worklog Tool</h1>
+        <p class="subtitle">Easily log your work hours to SRA SmartOSC</p>
+
+        <div class="instructions">
+            <h3>📋 Quick Start:</h3>
+            <ol>
+                <li>Click <strong>"⏰ Start Logging Work"</strong> button below</li>
+                <li>Follow the instructions to get your access token from Network tab</li>
+                <li>Select your project and date range</li>
+                <li>Submit your worklog!</li>
+            </ol>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: center;">
+            <button id="startButton" class="success" style="font-size: 18px; padding: 15px 30px;">
+                ⏰ Start Logging Work
+            </button>
+        </div>
+
+        <div id="worklogContainer" style="display: none;"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

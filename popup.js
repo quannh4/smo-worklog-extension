@@ -160,10 +160,17 @@ async function fetchCurrentUserId() {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch user info: ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`Failed to fetch user info: ${response.status} - ${errorText}`);
         }
 
-        const userData = await response.json();
+        // Check if response has content before parsing JSON
+        const responseText = await response.text();
+        if (!responseText || responseText.trim() === '') {
+            throw new Error('Empty response received from server');
+        }
+
+        const userData = JSON.parse(responseText);
         currentUserId = userData.id;
 
         // Save user ID to chrome storage
@@ -279,10 +286,17 @@ async function loadProjects() {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
         }
 
-        projectsList = await response.json();
+        // Check if response has content before parsing JSON
+        const responseText = await response.text();
+        if (!responseText || responseText.trim() === '') {
+            throw new Error('Empty response received from server');
+        }
+
+        projectsList = JSON.parse(responseText);
 
         // If no projects are returned, add the default "Other" project with ID 0
         if (!projectsList || projectsList.length === 0) {
@@ -609,7 +623,21 @@ async function submitWorklog() {
             throw new Error(`Failed to submit worklog: ${response.status} - ${errorText}`);
         }
 
-        const result = await response.json();
+        // Check if response has content before parsing JSON
+        const responseText = await response.text();
+        let result;
+
+        if (responseText && responseText.trim() !== '') {
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                // If JSON parsing fails, use the text response
+                result = { message: 'Success', response: responseText };
+            }
+        } else {
+            // Empty response means success (204 No Content or similar)
+            result = { message: 'Worklog submitted successfully' };
+        }
 
         // Show success message
         const totalHours = workingDays.length * workHours;

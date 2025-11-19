@@ -120,6 +120,10 @@ pre {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.3s ease;
+}
+.day-item:hover {
+    background: #e8f5e9;
 }
 button:disabled {
     background: #ccc;

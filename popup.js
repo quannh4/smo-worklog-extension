@@ -95,6 +95,18 @@ async function showTokenInput() {
     // Button text - always try to use user email, fallback to "Token" only if completely unavailable
     const buttonText = userEmail ? `Continue as ${userEmail}` : 'Continue with Token';
 
+    // Try to get user email from storage
+    let userEmail = '';
+    try {
+        const result = await chrome.storage.local.get(['smo_userEmail']);
+        userEmail = result.smo_userEmail || '';
+    } catch (e) {
+        console.log('Could not retrieve user email');
+    }
+
+    // Button text - always try to use user email, fallback to "Token" only if completely unavailable
+    const buttonText = userEmail ? `Continue as ${userEmail}` : 'Continue with Token';
+
     worklogContainer.innerHTML = `
         <div class="worklog-section">
             <h3>⏰ Worklog Tool</h3>

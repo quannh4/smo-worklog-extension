@@ -1,142 +1,415 @@
+/* Nền Kính lỏng tối màu (Dark Liquid Glass Background) */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    width: 600px;
-    min-height: 400px;
-    margin: 0;
-    padding: 20px;
-    background: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, sans-serif;
+  width: 600px;
+  max-width: 600px;
+  min-height: 400px;
+  margin: 0;
+  padding: 10px;
+  background-image: url("assets/Background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
+
 .container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  /* Giữ vị trí để định vị lớp giả ::before */
+  position: relative;
+  width: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+  
+  /* Xóa background cũ ở đây vì ta sẽ chuyển nó sang ::before */
+  background: transparent; 
+  /* border-radius cũ quá lớn (174px), nên giảm bớt để hiệu ứng đẹp hơn */
+  border-radius: 40px; 
+  z-index: 1;
 }
+
+.container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+
+  /* tint-opacity: change last value (0.0 to 1.0) */
+  background: rgba(255, 255, 255, 0);
+
+  /* frost-blur: change px value (higher = more blurry) */
+  backdrop-filter: blur(5px) saturate(100%);
+  -webkit-backdrop-filter: blur(5px) saturate(100%);
+
+  /* distortion & noise: adjust parameters in popup.html SVG */
+  filter: url(#glass-distortion);
+
+  border-radius: 40px;
+
+  /* shadow-blur (3rd value) & shadow-spread (4th value): change px values */
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    0 10px 20px 5px rgba(0, 0, 0, 0.2);
+  /*-0 10px [blur]-[spread] */
+}
+
+.container * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Worklog container - đảm bảo che phủ hoàn toàn */
+#worklogContainer {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  z-index: 10;
+}
+
 h1 {
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 24px;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 10px;
+  font-size: 24px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(100, 149, 237, 0.3);
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
+
 .subtitle {
-    color: #666;
-    margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 30px;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  font-weight: 400;
 }
+
+/* Kiểu viền cho biểu tượng emoji - dùng hiệu ứng phát sáng để giả lập viền */
+/* Tăng cường độ sáng cho emoji - tạo hiệu ứng giống đường viền */
+h1,
+h3,
+h4,
+button,
+label,
+p,
+li,
+strong {
+  filter: drop-shadow(0 0 2px rgba(100, 149, 237, 0.6))
+    drop-shadow(0 0 4px rgba(138, 43, 226, 0.4));
+}
+
+/* Nút bấm Kính lỏng (Liquid Glass Buttons) */
 button {
-    background: #4CAF50;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 5px;
+  position: relative;
+  background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(5px) saturate(100%);
+  -webkit-backdrop-filter: blur(5px) saturate(100%);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 46px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  margin: 5px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    0 10px 20px 5px rgba(0, 0, 0, 0.2);
+  -webkit-appearance: none;
+  appearance: none;
+  filter: url(#glass-distortion);
 }
+
 button:hover {
-    background: #45a049;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+    0 12px 24px 6px rgba(0, 0, 0, 0.3);
+  outline: none;
 }
+
+button:active {
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    0 6px 12px 3px rgba(0, 0, 0, 0.25);
+  outline: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:focus-visible {
+  outline: none;
+}
+
 .danger {
-    background: #f44336;
+  background: rgba(255, 255, 255, 0);
 }
+
 .danger:hover {
-    background: #da190b;
+  background: rgba(255, 255, 255, 0.05);
 }
+
 .info {
-    background: #2196F3;
+  background: rgba(255, 255, 255, 0);
 }
+
 .info:hover {
-    background: #0b7dda;
+  background: rgba(255, 255, 255, 0.05);
 }
+
+.success {
+  background: rgba(255, 255, 255, 0);
+}
+
+.success:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 pre {
-    background: #1e1e1e;
-    color: #d4d4d4;
-    padding: 15px;
-    border-radius: 5px;
-    overflow-x: auto;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #d4d4d4;
+  padding: 15px;
+  border-radius: 20px;
+  overflow-x: auto;
+  box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.4);
 }
+
+/* Hướng dẫn Kính lỏng (Liquid Glass Instructions) */
 .instructions {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 5px;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.4);
 }
+
 .instructions h3 {
-    margin-top: 0;
-    color: #856404;
+  margin-top: 0;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
+
 .instructions ol {
-    margin: 10px 0;
+  margin: 10px 0;
+  color: rgba(255, 255, 255, 0.9);
 }
+
 .instructions li {
-    margin: 5px 0;
+  margin: 5px 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
+
+.instructions strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Phần Nhật ký công việc Kính lỏng (Liquid Glass Worklog Section) */
 .worklog-section {
-    background: #e8f5e9;
-    border-left: 4px solid #4CAF50;
-    padding: 15px;
-    margin: 20px 0;
-    border-radius: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.4);
 }
+
+.worklog-section h3 {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
 .form-group {
-    margin: 15px 0;
+  margin: 15px 0;
 }
+
 .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
+
 .form-group select,
 .form-group input,
 .form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  font-size: 14px;
+  box-sizing: border-box;
+  color: rgba(255, 255, 255, 0.95);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.3);
 }
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 15px 0 rgba(100, 149, 237, 0.3),
+    0 0 0 2px rgba(100, 149, 237, 0.2);
+}
+
+.form-group select option {
+  background: rgba(102, 126, 234, 0.95);
+  color: white;
+}
+
 .form-group textarea {
-    resize: vertical;
-    min-height: 120px;
+  resize: vertical;
+  min-height: 120px;
+  font-family: "Courier New", monospace;
 }
+
+.form-group small {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
 .date-inputs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
 }
+
 .worklog-summary {
-    background: #fff;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin: 15px 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 15px;
+  border-radius: 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.4);
 }
+
+.worklog-summary h4 {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.worklog-summary p {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.worklog-summary strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
 .day-item {
-    padding: 8px;
-    margin: 5px 0;
-    background: #f5f5f5;
-    border-radius: 3px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
+  padding: 12px;
+  margin: 5px 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
 }
+
 .day-item:hover {
-    background: #e8f5e9;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px 0 rgba(31, 38, 135, 0.25);
 }
+
+.day-item label {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.day-item input[type="checkbox"] {
+  accent-color: rgba(76, 175, 80, 0.8);
+  cursor: pointer;
+}
+
+.day-item span {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
 button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: not-allowed;
+  opacity: 0.6;
+  filter: url(#glass-distortion) grayscale(0.5);
 }
+
 button:disabled:hover {
-    background: #ccc;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    0 8px 16px 4px rgba(0, 0, 0, 0.15);
 }
-.success {
-    background: #4CAF50;
+
+/* Đường dẫn liên kết (Links) */
+a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: underline;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
 }
-.success:hover {
-    background: #45a049;
+
+a:hover {
+  color: rgba(255, 255, 255, 1);
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Phần tử mã code (Code elements) */
+code {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Tùy chỉnh thanh cuộn (Scrollbar styling) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .warning {

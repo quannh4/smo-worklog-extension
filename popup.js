@@ -48,7 +48,16 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 async function showWorklogTool() {
+    const container = document.querySelector('.container');
     const worklogContainer = document.getElementById('worklogContainer');
+    const initialContent = document.getElementById('initialContent');
+    
+    // Xóa hoàn toàn nội dung ban đầu khỏi DOM để không hiện qua backdrop-filter
+    if (initialContent) {
+        initialContent.remove();
+    }
+
+    // Show worklog container và đảm bảo nó che phủ toàn bộ container
     worklogContainer.style.display = 'block';
 
     // Show loading state while checking token
@@ -97,62 +106,47 @@ async function showTokenInput() {
 
     worklogContainer.innerHTML = `
         <div class="worklog-section">
-            <h3>⏰ Worklog Tool</h3>
+            <h3>Worklog Tool</h3>
 
-            <div style="background: ${hasToken ? (isTokenValid ? '#e8f5e9' : '#ffebee') : '#e3f2fd'}; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid ${hasToken ? (isTokenValid ? '#4CAF50' : '#f44336') : '#2196F3'};">
-                <h4 style="margin-top: 0; color: ${hasToken ? (isTokenValid ? '#2E7D32' : '#f44336') : '#1976D2'};">
-                    ${hasToken ? (isTokenValid ? '✅ Token Detected!' : '❌ Expired Token Detected!') : '📡 How to Get Your Access Token:'}
+            <div style="background: ${hasToken ? 'rgba(232, 245, 233, 0.25)' : 'rgba(227, 242, 253, 0.25)'}; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 4px solid ${hasToken ? 'rgba(76, 175, 80, 0.6)' : 'rgba(33, 150, 243, 0.6)'}; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+                <h4 style="margin-top: 0; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);">
+                    ${hasToken ? 'Token Detected!' : 'How to Get Your Access Token:'}
                 </h4>
                 ${hasToken ? `
-                    <p style="margin: 10px 0;">
-                        ${isTokenValid ? 
-                            'Your access token has been automatically captured from your browsing session!' : 
-                            '<strong style="font-size: 16px; color: #f44336;">⚠️ YOUR TOKEN HAS EXPIRED!</strong><br>Please get a new token from SRA SmartOSC.'}
+                    <p style="margin: 10px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+                        Your access token has been automatically captured from your browsing session!
                     </p>
-                    <p style="margin: 10px 0; font-size: 12px; color: #555;">
-                        Token preview: <code style="background: #fff; padding: 2px 6px; border-radius: 3px; font-size: 11px;">${tokenValue}</code>
+                    <p style="margin: 10px 0; font-size: 12px; color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+                        Token preview: <code style="background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(5px); padding: 2px 6px; border-radius: 4px; font-size: 11px; color: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.1);">${tokenValue}</code>
                     </p>
                 ` : `
-                    <ol style="margin: 10px 0; padding-left: 20px;">
-                        <li>Open <a href="https://sra.smartosc.com" target="_blank" style="color: #1976D2;"><strong>https://sra.smartosc.com</strong></a> in a new tab</li>
+                    <ol style="margin: 10px 0; padding-left: 20px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+                        <li>Open <a href="https://sra.smartosc.com" target="_blank" style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);"><strong>https://sra.smartosc.com</strong></a> in a new tab</li>
                         <li>Login with your credentials</li>
                         <li>Return here - the token will be captured automatically!</li>
                     </ol>
-                    <p style="margin: 10px 0; font-size: 13px;">
+                    <p style="margin: 10px 0; font-size: 13px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
                         <strong>Alternative:</strong> You can also paste your token manually below.
                     </p>
                 `}
             </div>
 
             <div class="form-group">
-                <label>🔑 Access Token ${hasToken ? (isTokenValid ? '(Auto-captured)' : '(Expired - Please Update)') : '(Optional - Manual Entry)'}:</label>
+                <label>Access Token ${hasToken ? '(Auto-captured)' : '(Optional - Manual Entry)'}:</label>
                 <textarea
                     id="tokenInput"
                     placeholder="${hasToken && !isTokenValid ? 'Token has expired! Please enter a new token.' : 'Token will be captured automatically, or paste here manually...'}"
                     style="font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; ${hasToken && !isTokenValid ? 'border: 2px solid #f44336;' : ''}"
                 >${currentToken || ''}</textarea>
-                <small style="color: ${hasToken && !isTokenValid ? '#f44336' : '#666'}; display: block; margin-top: 5px; font-weight: ${hasToken && !isTokenValid ? 'bold' : 'normal'};">
-                    ${hasToken ? 
-                        (isTokenValid ? 
-                            '✅ Token ready! Click Continue below.' : 
-                            '❌ This token has expired! Please get a new token from SRA SmartOSC and paste it above.') : 
-                        'ℹ️ Visit SRA SmartOSC and login, or paste token manually.'}
+                <small style="color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); display: block; margin-top: 5px;">
+                    ${hasToken ? 'Token ready! Click Continue below.' : 'Visit SRA SmartOSC and login, or paste token manually.'}
                 </small>
             </div>
 
-            <div style="margin-top: 20px;">
-                ${hasToken && !isTokenValid ? `
-                    <button id="getNewTokenBtn" class="warning" style="background-color: #ff9800; color: white;">
-                        🔁 Get New Token
-                    </button>
-                    <p style="margin-top: 10px; font-size: 12px; color: #666;">
-                        This will open <a href="https://sra.smartosc.com/login" target="_blank">sra.smartosc.com/login</a> where you can log in and get a new token
-                    </p>
-                ` : `
-                    <button id="continueTokenBtn" class="success">
-                        ▶️ ${buttonText}
-                    </button>
-                `}
+            <div style="margin-top: 20px; text-align: center;">
+                <button id="continueTokenBtn" class="success">
+                    Continue with Token
+                </button>
             </div>
         </div>
     `;
@@ -171,7 +165,7 @@ async function continueWithToken() {
     }
 
     if (!tokenInput) {
-        alert('❌ Please paste your access token first!');
+        alert('Please paste your access token first!');
         return;
     }
 
@@ -214,10 +208,10 @@ async function fetchCurrentUserId() {
     try {
         worklogContainer.innerHTML = `
             <div class="worklog-section">
-                <h3>⏰ Worklog Tool</h3>
-                <p style="margin: 10px 0;">✅ Token received! Fetching your user information...</p>
+                <h3>Worklog Tool</h3>
+                <p style="margin: 10px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Token received! Fetching your user information...</p>
                 <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 24px;">⏳</div>
+                    <div style="font-size: 24px; filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));">Loading...</div>
                 </div>
             </div>
         `;
@@ -251,7 +245,7 @@ async function fetchCurrentUserId() {
         await chrome.storage.local.set({ 'smo_userId': currentUserId });
 
     } catch (error) {
-        alert(`❌ Error fetching user information: ${error.message}\nPlease check if your token is valid.`);
+        alert(`Error fetching user information: ${error.message}\nPlease check if your token is valid.`);
         showTokenInput();
         throw error;
     }
@@ -270,29 +264,29 @@ function showDateRangeSelector() {
 
     worklogContainer.innerHTML = `
         <div class="worklog-section">
-            <h3>⏰ Worklog Tool</h3>
-            <p style="margin: 10px 0;">✅ Token received!</p>
+            <h3>Worklog Tool</h3>
+            <p style="margin: 10px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Token received!</p>
 
             <div class="form-group">
-                <label>📅 Select Date Range:</label>
+                <label>Select Date Range:</label>
                 <div class="date-inputs">
                     <div>
-                        <label style="font-weight: normal; font-size: 12px;">Start Date:</label>
+                        <label style="font-weight: normal; font-size: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Start Date:</label>
                         <input type="date" id="startDateInitial" value="${startDateDefault}" />
                     </div>
                     <div>
-                        <label style="font-weight: normal; font-size: 12px;">End Date:</label>
+                        <label style="font-weight: normal; font-size: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">End Date:</label>
                         <input type="date" id="endDateInitial" value="${endDateDefault}" />
                     </div>
                 </div>
-                <small style="color: #666; display: block; margin-top: 5px;">
-                    ℹ️ We'll use this date range to fetch your available projects
+                <small style="color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); display: block; margin-top: 5px;">
+                    We'll use this date range to fetch your available projects
                 </small>
             </div>
 
-            <div style="margin-top: 20px;">
+            <div style="margin-top: 20px; text-align: center;">
                 <button id="loadProjectsBtn" class="success">
-                    ▶️ Load Projects
+                    Load Projects
                 </button>
             </div>
         </div>
@@ -304,7 +298,7 @@ async function loadProjectsWithDateRange() {
     const endDateInput = document.getElementById('endDateInitial').value;
 
     if (!startDateInput || !endDateInput) {
-        alert('❌ Please select both start and end dates!');
+        alert('Please select both start and end dates!');
         return;
     }
 
@@ -312,18 +306,18 @@ async function loadProjectsWithDateRange() {
     const endDate = new Date(endDateInput);
 
     if (startDate > endDate) {
-        alert('❌ Start date must be before or equal to end date!');
+        alert('Start date must be before or equal to end date!');
         return;
     }
 
     const worklogContainer = document.getElementById('worklogContainer');
     worklogContainer.innerHTML = `
         <div class="worklog-section">
-            <h3>⏰ Worklog Tool</h3>
-            <p style="margin: 10px 0;">✅ Loading projects for ${startDateInput} to ${endDateInput}...</p>
+            <h3>Worklog Tool</h3>
+            <p style="margin: 10px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Loading projects for ${startDateInput} to ${endDateInput}...</p>
             <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 24px;">⏳</div>
-                <p>Fetching your projects...</p>
+                <div style="font-size: 24px; filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));">Loading...</div>
+                <p style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Fetching your projects...</p>
             </div>
         </div>
     `;
@@ -418,34 +412,34 @@ function showProjectLoadError(errorMsg, showRetry) {
 
     worklogContainer.innerHTML = `
         <div class="worklog-section">
-            <h3>❌ Error Loading Projects</h3>
-            <p style="color: #f44336;"><strong>Error:</strong> ${errorMsg}</p>
+            <h3>Error Loading Projects</h3>
+            <p style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);"><strong>Error:</strong> ${errorMsg}</p>
 
-            <div style="background: #fff3e0; padding: 12px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #ff9800;">
-                <strong>Current Settings:</strong><br>
-                📅 Date Range: ${startDate} to ${endDate}<br>
-                🔑 Token: ${currentToken.substring(0, 20)}...
+            <div style="background: rgba(255, 243, 224, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 12px; border-radius: 12px; margin: 15px 0; border-left: 4px solid rgba(255, 152, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+                <strong style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Current Settings:</strong><br>
+                <span style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Date Range: ${startDate} to ${endDate}<br>
+                Token: ${currentToken.substring(0, 20)}...</span>
             </div>
 
-            <p><strong>Possible solutions:</strong></p>
-            <ul>
+            <p style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);"><strong>Possible solutions:</strong></p>
+            <ul style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
                 <li>Check if your token is still valid (tokens expire after some time)</li>
                 <li>Make sure you're logged in to <strong>https://sra.smartosc.com</strong></li>
                 <li>Try selecting a different date range</li>
                 <li>Get a fresh token from the Network tab</li>
             </ul>
 
-            <div style="margin-top: 20px;">
+            <div style="margin-top: 20px; text-align: center;">
                 ${showRetry ? `
                     <button class="retryLoadBtn success">
-                        🔄 Retry Loading Projects
+                        Retry Loading Projects
                     </button>
                 ` : ''}
                 <button class="changeDatesBtn info">
-                    📅 Change Date Range
+                    Change Date Range
                 </button>
                 <button class="updateTokenBtn info">
-                    🔑 Update Token
+                    Update Token
                 </button>
             </div>
         </div>
@@ -464,17 +458,17 @@ function renderWorklogForm() {
 
     worklogContainer.innerHTML = `
         <div class="worklog-section">
-            <h3>⏰ Log Your Work Hours</h3>
+            <h3>Log Your Work Hours</h3>
 
-            <div style="background: #e8f5e9; padding: 12px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #4CAF50;">
-                <strong>📅 Selected Date Range:</strong> ${startDate} to ${endDate}
+            <div style="background: rgba(232, 245, 233, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 12px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid rgba(76, 175, 80, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+                <strong style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Selected Date Range:</strong> <span style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${startDate} to ${endDate}</span>
                 <button class="changeDatesBtn info" style="font-size: 12px; padding: 5px 10px; margin-left: 10px;">
                     Change Dates
                 </button>
             </div>
 
             <div class="form-group">
-                <label>📁 Select Project:</label>
+                <label>Select Project:</label>
                 <select id="projectSelect">
                     <option value="">-- Select a project --</option>
                     ${projectOptions}
@@ -482,18 +476,18 @@ function renderWorklogForm() {
             </div>
 
             <div class="form-group">
-                <label>⏱️ Work Hours per Day:</label>
+                <label>Work Hours per Day:</label>
                 <input type="number" id="workHours" min="0.5" max="24" step="0.5" value="8" />
-                <small style="color: #666; display: block; margin-top: 5px;">
-                    ℹ️ Default is 8 hours. You can adjust this value (0.5 - 24 hours)
+                <small style="color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); display: block; margin-top: 5px;">
+                    Default is 8 hours. You can adjust this value (0.5 - 24 hours)
                 </small>
             </div>
 
             <div id="worklogPreview"></div>
 
-            <div style="margin-top: 20px;">
+            <div style="margin-top: 20px; text-align: center;">
                 <button id="submitBtn" disabled>
-                    📤 Submit Worklog
+                    Submit Worklog
                 </button>
             </div>
         </div>
@@ -540,8 +534,8 @@ function updateWorklogPreview() {
 
     if (workHours <= 0 || workHours > 24) {
         preview.innerHTML = `
-            <div style="color: #f44336; padding: 10px; background: #ffebee; border-radius: 5px;">
-                ⚠️ Work hours must be between 0.5 and 24 hours
+            <div style="color: rgba(255, 255, 255, 0.95); padding: 10px; background: rgba(255, 235, 238, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+                Work hours must be between 0.5 and 24 hours
             </div>
         `;
         submitBtn.disabled = true;
@@ -555,8 +549,8 @@ function updateWorklogPreview() {
 
     if (weekdays.length === 0) {
         preview.innerHTML = `
-            <div style="color: #ff9800; padding: 10px; background: #fff3e0; border-radius: 5px;">
-                ⚠️ No weekdays found in this date range
+            <div style="color: rgba(255, 255, 255, 0.95); padding: 10px; background: rgba(255, 243, 224, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+                No weekdays found in this date range
             </div>
         `;
         submitBtn.disabled = true;
@@ -574,8 +568,8 @@ function updateWorklogPreview() {
                            data-date="${dateStr}" 
                            checked
                            style="margin-right: 10px; cursor: pointer; width: 18px; height: 18px;" />
-                    <span style="flex: 1;">${dayName}, ${dateStr}</span>
-                    <span style="color: #4CAF50; font-weight: bold;">${workHours} hours</span>
+                    <span style="flex: 1; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${dayName}, ${dateStr}</span>
+                    <span style="color: rgba(255, 255, 255, 0.95); font-weight: bold; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${workHours} hours</span>
                 </label>
             </div>
         `;
@@ -586,11 +580,11 @@ function updateWorklogPreview() {
 
     preview.innerHTML = `
         <div class="worklog-summary">
-            <h4 style="margin-top: 0;">📋 Worklog Preview</h4>
+            <h4 style="margin-top: 0;">Worklog Preview</h4>
             <p><strong>Project:</strong> ${selectedProject.name} (${selectedProject.code})</p>
-            <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 3px solid #ff9800;">
-                <p style="margin: 5px 0;">
-                    <strong>💡 Tip:</strong> All days are selected by default. Uncheck the boxes for days you're on leave (no work will be logged for those days)
+            <div style="background: rgba(255, 243, 224, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 10px; border-radius: 12px; margin: 10px 0; border-left: 3px solid rgba(255, 152, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+                <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+                    <strong>Tip:</strong> All days are selected by default. Uncheck the boxes for days you're on leave (no work will be logged for those days)
                 </p>
             </div>
             <p><strong>Total Days:</strong> <span id="workingDaysCount">${weekdays.length}</span> weekdays</p>
@@ -632,15 +626,15 @@ function updateTotals() {
         totalHoursCount.textContent = totalHours;
     }
 
-    // Visual feedback for leave days (unchecked)
+        // Visual feedback for leave days (unchecked)
     checkboxes.forEach(checkbox => {
         const dayItem = checkbox.closest('.day-item');
         if (!checkbox.checked) {
-            dayItem.style.background = '#ffebee';
+            dayItem.style.background = 'rgba(255, 235, 238, 0.2)';
             dayItem.style.opacity = '0.6';
             dayItem.style.textDecoration = 'line-through';
         } else {
-            dayItem.style.background = '#f5f5f5';
+            dayItem.style.background = 'rgba(255, 255, 255, 0.15)';
             dayItem.style.opacity = '1';
             dayItem.style.textDecoration = 'none';
         }
@@ -652,14 +646,14 @@ async function submitWorklog() {
     const workHoursInput = document.getElementById('workHours');
 
     if (!selectedProject) {
-        alert('❌ Please select a project');
+        alert('Please select a project');
         return;
     }
 
     const workHours = parseFloat(workHoursInput.value) || 8;
 
     if (workHours <= 0 || workHours > 24) {
-        alert('❌ Work hours must be between 0.5 and 24 hours');
+        alert('Work hours must be between 0.5 and 24 hours');
         return;
     }
 
@@ -683,7 +677,7 @@ async function submitWorklog() {
 
     // Check if there are any working days
     if (workingDays.length === 0) {
-        alert('❌ No working days selected! Please check at least one day or select a different date range.');
+        alert('No working days selected! Please check at least one day or select a different date range.');
         return;
     }
 
@@ -700,7 +694,7 @@ async function submitWorklog() {
 
     // Disable button and show loading
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '⏳ Submitting...';
+    submitBtn.innerHTML = 'Submitting...';
 
     try {
         const response = await fetch('https://sra-api.smartosc.com/api/user/worklogs', {
@@ -743,23 +737,23 @@ async function submitWorklog() {
         const leaveDaysCount = weekdays.length - workingDays.length;
 
         document.getElementById('worklogPreview').innerHTML = `
-            <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                <h4 style="margin-top: 0;">✅ Worklog Submitted Successfully!</h4>
-                <p>Logged ${workingDays.length} days (${totalHours} hours) for project: <strong>${selectedProject.name}</strong></p>
-                ${leaveDaysCount > 0 ? `<p style="color: #856404; background: #fff3cd; padding: 8px; border-radius: 3px;">📅 Skipped ${leaveDaysCount} day(s) marked as leave</p>` : ''}
-                <pre style="background: #fff; color: #333; padding: 10px; margin-top: 10px;">${JSON.stringify(result, null, 2)}</pre>
+            <div style="background: rgba(212, 237, 218, 0.3); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(195, 230, 203, 0.4); color: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 12px; margin: 15px 0; box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+                <h4 style="margin-top: 0; text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);">Worklog Submitted Successfully!</h4>
+                <p style="text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Logged ${workingDays.length} days (${totalHours} hours) for project: <strong>${selectedProject.name}</strong></p>
+                ${leaveDaysCount > 0 ? `<p style="color: rgba(255, 255, 255, 0.95); background: rgba(255, 243, 205, 0.3); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Skipped ${leaveDaysCount} day(s) marked as leave</p>` : ''}
+                <pre style="background: rgba(30, 30, 30, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #d4d4d4; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.2);">${JSON.stringify(result, null, 2)}</pre>
             </div>
         `;
 
-        submitBtn.innerHTML = '✅ Submitted!';
+        submitBtn.innerHTML = 'Submitted!';
         setTimeout(() => {
-            submitBtn.innerHTML = '📤 Submit Worklog';
+            submitBtn.innerHTML = 'Submit Worklog';
             submitBtn.disabled = false;
         }, 3000);
 
     } catch (error) {
-        alert(`❌ Error: ${error.message}`);
-        submitBtn.innerHTML = '📤 Submit Worklog';
+        alert(`Error: ${error.message}`);
+        submitBtn.innerHTML = 'Submit Worklog';
         submitBtn.disabled = false;
     }
 }

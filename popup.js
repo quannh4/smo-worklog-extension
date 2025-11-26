@@ -55,11 +55,23 @@ async function showWorklogTool() {
     showTokenInput();
 }
 
-function showTokenInput() {
+async function showTokenInput() {
     const worklogContainer = document.getElementById('worklogContainer');
 
     const tokenValue = currentToken ? currentToken.substring(0, 50) + '...' : '';
     const hasToken = currentToken !== null;
+
+    // Try to get user email from storage
+    let userEmail = '';
+    try {
+        const result = await chrome.storage.local.get(['smo_userEmail']);
+        userEmail = result.smo_userEmail || '';
+    } catch (e) {
+        console.log('Could not retrieve user email');
+    }
+
+    // Button text - always try to use user email, fallback to "Token" only if completely unavailable
+    const buttonText = userEmail ? `Continue as ${userEmail}` : 'Continue with Token';
 
     worklogContainer.innerHTML = `
         <div class="worklog-section">
@@ -102,7 +114,7 @@ function showTokenInput() {
 
             <div style="margin-top: 20px;">
                 <button id="continueTokenBtn" class="success">
-                    ▶️ Continue with Token
+                    ▶️ ${buttonText}
                 </button>
             </div>
         </div>

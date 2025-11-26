@@ -138,3 +138,11 @@ button:disabled:hover {
 .success:hover {
     background: #45a049;
 }
+
+.warning {
+    background: #ff9800;
+}
+
+.warning:hover {
+    background: #e68a00;
+}

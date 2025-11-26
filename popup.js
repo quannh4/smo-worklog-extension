@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
         // Handle different button clicks
         if (target.id === 'continueTokenBtn') {
             continueWithToken();
+        } else if (target.id === 'getNewTokenBtn') {
+            // Open SRA SmartOSC login page
+            window.open('https://sra.smartosc.com/login', '_blank');
         } else if (target.id === 'loadProjectsBtn') {
             loadProjectsWithDateRange();
         } else if (target.id === 'submitBtn') {
@@ -48,30 +51,51 @@ async function showWorklogTool() {
     const worklogContainer = document.getElementById('worklogContainer');
     worklogContainer.style.display = 'block';
 
+    // Show loading state while checking token
+    worklogContainer.innerHTML = `
+        <div class="worklog-section">
+            <h3>⏰ Worklog Tool</h3>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 24px;">⏳</div>
+                <p>Checking for valid token...</p>
+            </div>
+        </div>
+    `;
+
     // Try to extract token automatically first
     currentToken = await findAccessToken();
 
     // Show token input form
-    showTokenInput();
+    await showTokenInput();
 }
 
-function showTokenInput() {
+async function showTokenInput() {
     const worklogContainer = document.getElementById('worklogContainer');
 
     const tokenValue = currentToken ? currentToken.substring(0, 50) + '...' : '';
     const hasToken = currentToken !== null;
+    
+    // If we have a token, check if it's still valid
+    let isTokenValid = true;
+    let tokenValidationComplete = false;
+    if (hasToken) {
+        isTokenValid = await validateToken(currentToken);
+        tokenValidationComplete = true;
+    }
 
     worklogContainer.innerHTML = `
         <div class="worklog-section">
             <h3>⏰ Worklog Tool</h3>
 
-            <div style="background: ${hasToken ? '#e8f5e9' : '#e3f2fd'}; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid ${hasToken ? '#4CAF50' : '#2196F3'};">
-                <h4 style="margin-top: 0; color: ${hasToken ? '#2E7D32' : '#1976D2'};">
-                    ${hasToken ? '✅ Token Detected!' : '📡 How to Get Your Access Token:'}
+            <div style="background: ${hasToken ? (isTokenValid ? '#e8f5e9' : '#ffebee') : '#e3f2fd'}; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid ${hasToken ? (isTokenValid ? '#4CAF50' : '#f44336') : '#2196F3'};">
+                <h4 style="margin-top: 0; color: ${hasToken ? (isTokenValid ? '#2E7D32' : '#f44336') : '#1976D2'};">
+                    ${hasToken ? (isTokenValid ? '✅ Token Detected!' : '❌ Expired Token Detected!') : '📡 How to Get Your Access Token:'}
                 </h4>
                 ${hasToken ? `
                     <p style="margin: 10px 0;">
-                        Your access token has been automatically captured from your browsing session!
+                        ${isTokenValid ? 
+                            'Your access token has been automatically captured from your browsing session!' : 
+                            '<strong style="font-size: 16px; color: #f44336;">⚠️ YOUR TOKEN HAS EXPIRED!</strong><br>Please get a new token from SRA SmartOSC.'}
                     </p>
                     <p style="margin: 10px 0; font-size: 12px; color: #555;">
                         Token preview: <code style="background: #fff; padding: 2px 6px; border-radius: 3px; font-size: 11px;">${tokenValue}</code>
@@ -89,21 +113,34 @@ function showTokenInput() {
             </div>
 
             <div class="form-group">
-                <label>🔑 Access Token ${hasToken ? '(Auto-captured)' : '(Optional - Manual Entry)'}:</label>
+                <label>🔑 Access Token ${hasToken ? (isTokenValid ? '(Auto-captured)' : '(Expired - Please Update)') : '(Optional - Manual Entry)'}:</label>
                 <textarea
                     id="tokenInput"
-                    placeholder="Token will be captured automatically, or paste here manually..."
-                    style="font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5;"
+                    placeholder="${hasToken && !isTokenValid ? 'Token has expired! Please enter a new token.' : 'Token will be captured automatically, or paste here manually...'}"
+                    style="font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; ${hasToken && !isTokenValid ? 'border: 2px solid #f44336;' : ''}"
                 >${currentToken || ''}</textarea>
-                <small style="color: #666; display: block; margin-top: 5px;">
-                    ${hasToken ? '✅ Token ready! Click Continue below.' : 'ℹ️ Visit SRA SmartOSC and login, or paste token manually.'}
+                <small style="color: ${hasToken && !isTokenValid ? '#f44336' : '#666'}; display: block; margin-top: 5px; font-weight: ${hasToken && !isTokenValid ? 'bold' : 'normal'};">
+                    ${hasToken ? 
+                        (isTokenValid ? 
+                            '✅ Token ready! Click Continue below.' : 
+                            '❌ This token has expired! Please get a new token from SRA SmartOSC and paste it above.') : 
+                        'ℹ️ Visit SRA SmartOSC and login, or paste token manually.'}
                 </small>
             </div>
 
             <div style="margin-top: 20px;">
-                <button id="continueTokenBtn" class="success">
-                    ▶️ Continue with Token
-                </button>
+                ${hasToken && !isTokenValid ? `
+                    <button id="getNewTokenBtn" class="warning" style="background-color: #ff9800; color: white;">
+                        🔁 Get New Token
+                    </button>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                        This will open <a href="https://sra.smartosc.com/login" target="_blank">sra.smartosc.com/login</a> where you can log in and get a new token
+                    </p>
+                ` : `
+                    <button id="continueTokenBtn" class="success">
+                        ▶️ Continue with Token
+                    </button>
+                `}
             </div>
         </div>
     `;
@@ -123,6 +160,27 @@ async function continueWithToken() {
 
     if (!tokenInput) {
         alert('❌ Please paste your access token first!');
+        return;
+    }
+
+    // Show loading state while validating token
+    const worklogContainer = document.getElementById('worklogContainer');
+    worklogContainer.innerHTML = `
+        <div class="worklog-section">
+            <h3>⏰ Worklog Tool</h3>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 24px;">⏳</div>
+                <p>Validating token...</p>
+            </div>
+        </div>
+    `;
+
+    // Validate token before proceeding
+    const isValid = await validateToken(tokenInput);
+    if (!isValid) {
+        alert('❌ Invalid or expired token! Please get a new token from SRA SmartOSC.');
+        currentToken = tokenInput; // Still store the token so user can see it
+        showTokenInput();
         return;
     }
 
@@ -160,6 +218,10 @@ async function fetchCurrentUserId() {
         });
 
         if (!response.ok) {
+            // If token is invalid (401 or 403), notify user but don't clear it from storage
+            if (response.status === 401 || response.status === 403) {
+                throw new Error('Token is invalid or expired. Please get a new token from SRA SmartOSC.');
+            }
             const errorText = await response.text();
             throw new Error(`Failed to fetch user info: ${response.status} - ${errorText}`);
         }
@@ -264,12 +326,29 @@ async function loadProjectsWithDateRange() {
 
 async function findAccessToken() {
     // Try to get token and userId from chrome storage first
-    const result = await chrome.storage.local.get(['smo_token', 'smo_userId']);
+    const result = await chrome.storage.local.get(['smo_token', 'smo_userId', 'token_captured_at']);
     if (result.smo_token) {
         currentUserId = result.smo_userId || null;
         return result.smo_token;
     }
     return null;
+}
+
+async function validateToken(token) {
+    try {
+        const response = await fetch('https://sra-api.smartosc.com/api/users/current-user', {
+            headers: {
+                'accept': 'application/json, text/plain, */*',
+                'authorization': `Bearer ${token}`
+            }
+        });
+        
+        // If we get a successful response, token is valid
+        return response.ok;
+    } catch (error) {
+        // If there's an error (network issue, etc.), assume token is invalid
+        return false;
+    }
 }
 
 async function loadProjects() {
@@ -286,6 +365,10 @@ async function loadProjects() {
         });
 
         if (!response.ok) {
+            // If token is invalid (401 or 403), notify user but don't clear it from storage
+            if (response.status === 401 || response.status === 403) {
+                throw new Error('Token is invalid or expired. Please get a new token from SRA SmartOSC.');
+            }
             const errorText = await response.text();
             throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
         }
@@ -619,6 +702,10 @@ async function submitWorklog() {
         });
 
         if (!response.ok) {
+            // If token is invalid (401 or 403), notify user but don't clear it from storage
+            if (response.status === 401 || response.status === 403) {
+                throw new Error('Token is invalid or expired. Please get a new token from SRA SmartOSC.');
+            }
             const errorText = await response.text();
             throw new Error(`Failed to submit worklog: ${response.status} - ${errorText}`);
         }

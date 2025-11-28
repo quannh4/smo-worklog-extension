@@ -1,0 +1,32 @@
+<div>
+    <p style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);"><strong>Error:</strong>
+        {{ERROR_MESSAGE}}</p>
+
+    <div
+        style="background: rgba(255, 243, 224, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 12px; border-radius: 12px; margin: 15px 0; border-left: 4px solid rgba(255, 152, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+        <strong style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Current
+            Settings:</strong><br>
+        <span style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Date Range:
+            {{START_DATE}} to {{END_DATE}}<br>
+            Token: {{TOKEN_PREVIEW}}...</span>
+    </div>
+
+    <p style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);"><strong>Possible
+            solutions:</strong></p>
+    <ul style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+        <li>Check if your token is still valid (tokens expire after some time)</li>
+        <li>Make sure you're logged in to <strong>https://sra.smartosc.com</strong></li>
+        <li>Try selecting a different date range</li>
+        <li>Get a fresh token from the Network tab</li>
+    </ul>
+
+    <div style="margin-top: 20px; text-align: center;">
+        {{RETRY_BUTTON}}
+        <button class="changeDatesBtn info">
+            Change Date Range
+        </button>
+        <button class="updateTokenBtn info">
+            Update Token
+        </button>
+    </div>
+</div>

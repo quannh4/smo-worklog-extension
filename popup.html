@@ -1,35 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SMO Worklog Tool</title>
-    <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-    <div class="container">
-        <h1>⏰ SMO Worklog Tool</h1>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="0"
+      height="0"
+      style="position: absolute; overflow: hidden"
+    >
+      <defs>
+        <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0"
+            numOctaves="5"
+            seed="92"
+            result="noise"
+          />
+
+          <feGaussianBlur in="noise" stdDeviation="0.1" result="blurred" />
+
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="blurred"
+            scale="0"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </defs>
+    </svg>
+    <div class="container liquid-glass liquid-glass-md">
+      <div id="initialContent">
+        <h1>SMO Worklog Tool</h1>
         <p class="subtitle">Easily log your work hours to SRA SmartOSC</p>
 
-        <div class="instructions">
-            <h3>📋 Quick Start:</h3>
-            <ol>
-                <li>Click <strong>"⏰ Start Logging Work"</strong> button below</li>
-                <li>Follow the instructions to get your access token from Network tab</li>
-                <li>Select your project and date range</li>
-                <li>Submit your worklog!</li>
-            </ol>
+        <div class="instructions liquid-glass liquid-glass-xl liquid-glass-dark">
+          <h3>Quick Start:</h3>
+          <ol>
+            <li>Click <strong>"Start Logging Work"</strong> button below</li>
+            <li>
+              Follow the instructions to get your access token from Network tab
+            </li>
+            <li>Select your project and date range</li>
+            <li>Submit your worklog!</li>
+          </ol>
         </div>
 
-        <div style="margin-bottom: 20px; text-align: center;">
-            <button id="startButton" class="success" style="font-size: 18px; padding: 15px 30px;">
-                ⏰ Start Logging Work
-            </button>
+        <div style="margin-bottom: 20px; text-align: center">
+          <button
+            id="startButton"
+            class="success liquid-glass liquid-glass-xl "
+            style="font-size: 18px; padding: 15px 30px"
+          >
+            Start Logging Work
+          </button>
         </div>
+      </div>
 
-        <div id="worklogContainer" style="display: none;"></div>
+      <div id="worklogContainer" style="display: none"></div>
     </div>
 
     <script src="popup.js"></script>
-</body>
+  </body>
 </html>

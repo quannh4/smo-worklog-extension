@@ -9,11 +9,11 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     // Look for Authorization header in the request
     if (details.requestHeaders) {
       for (let header of details.requestHeaders) {
-        if (header.name.toLowerCase() === 'authorization' && header.value) {
+        if (header.name.toLowerCase() === "authorization" && header.value) {
           // Extract the token (remove "Bearer " prefix if present)
           let token = header.value.trim();
 
-          if (token.toLowerCase().startsWith('bearer ')) {
+          if (token.toLowerCase().startsWith("bearer ")) {
             token = token.substring(7).trim();
           }
 
@@ -22,12 +22,15 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
             lastSavedToken = token;
 
             // Save the token to storage
-            chrome.storage.local.set({
-              'smo_token': token,
-              'token_captured_at': new Date().toISOString()
-            }, function () {
-              console.log('Token automatically captured from request');
-            });
+            chrome.storage.local.set(
+              {
+                smo_token: token,
+                token_captured_at: new Date().toISOString(),
+              },
+              function () {
+                console.log("Token automatically captured from request");
+              }
+            );
 
             // Fetch user ID when token changes
             fetchAndSaveUserId(token);
@@ -39,10 +42,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     }
   },
   {
-    urls: [
-      "https://sra.smartosc.com/*",
-      "https://sra-api.smartosc.com/*"
-    ]
+    urls: ["https://sra.smartosc.com/*", "https://sra-api.smartosc.com/*"],
   },
   ["requestHeaders"]
 );
@@ -50,25 +50,28 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 // Function to fetch and save user ID
 async function fetchAndSaveUserId(token) {
   try {
-    const response = await fetch('https://sra-api.smartosc.com/api/users/current-user', {
-      headers: {
-        'accept': 'application/json, text/plain, */*',
-        'authorization': `Bearer ${token}`
+    const response = await fetch(
+      "https://sra-api.smartosc.com/api/users/current-user",
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          authorization: `Bearer ${token}`,
+        },
       }
-    });
+    );
 
     if (response.ok) {
       const userData = await response.json();
       await chrome.storage.local.set({
-        'smo_userId': userData.id,
-        'smo_userName': userData.name,
-        'smo_userEmail': userData.email
+        smo_userId: userData.id,
+        smo_userName: userData.name,
+        smo_userEmail: userData.email,
       });
-      console.log('User ID automatically fetched:', userData.id);
+      console.log("User ID automatically fetched:", userData.id);
     }
   } catch (error) {
-    console.error('Failed to fetch user ID:', error);
+    console.error("Failed to fetch user ID:", error);
   }
 }
 
-console.log('SMO Worklog Tool background service worker loaded');
+console.log("SMO Worklog Tool background service worker loaded");

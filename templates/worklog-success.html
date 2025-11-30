@@ -1,9 +1,6 @@
 <div
-    style="background: rgba(212, 237, 218, 0.3); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(195, 230, 203, 0.4); color: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 12px; margin: 15px 0; box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
-    <h4 style="margin-top: 0; text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);">Worklog Submitted Successfully!</h4>
-    <p style="text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Logged {{WORKING_DAYS}} days ({{TOTAL_HOURS}} hours) for
-        project: <strong>{{PROJECT_NAME}}</strong></p>
-    {{LEAVE_DAYS_MESSAGE}}
-    <pre
-        style="background: rgba(30, 30, 30, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #d4d4d4; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.2);">{{RESPONSE_JSON}}</pre>
+    style="background: rgba(212, 237, 218, 0.3); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(195, 230, 203, 0.4); color: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 12px; margin: 15px 0; box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2); text-align: center;">
+    <h4 style="margin-top: 0; margin-bottom: 15px; text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);">✓ Success!</h4>
+    <p style="text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-size: 16px; margin-bottom: 20px;">{{SUCCESS_MESSAGE}}</p>
+    <button id="closeSuccessBtn" class="success" style="padding: 10px 30px; font-size: 14px;">Close</button>
 </div>

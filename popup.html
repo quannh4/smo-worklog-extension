@@ -45,10 +45,16 @@
           <ol>
             <li>Click <strong>"Start Logging Work"</strong> button below</li>
             <li>
-              Follow the instructions to get your access token from Network tab
+              Your access token will be automatically captured from your browsing session, or you can paste it manually
             </li>
-            <li>Select your project and date range</li>
-            <li>Submit your worklog!</li>
+            <li>
+              Choose your method:
+              <ul style="margin-top: 5px; padding-left: 20px;">
+                <li><strong>Manual Input:</strong> Select your own date range and project</li>
+                <li><strong>Auto:</strong> Automatically generate worklog from start of month to today based on allocated data</li>
+              </ul>
+            </li>
+            <li>Review, modify if needed, and submit your worklog!</li>
           </ol>
         </div>
 
@@ -66,6 +72,17 @@
       <div id="worklogContainer" style="display: none"></div>
     </div>
 
+    <!-- Load utility modules first -->
+    <script src="utils/templateLoader.js"></script>
+    <script src="utils/dateUtils.js"></script>
+    <script src="utils/tokenManager.js"></script>
+    
+    <!-- Load business logic modules -->
+    <script src="worklog/worklogGenerator.js"></script>
+    <script src="ui/renderers.js"></script>
+    <script src="api/api.js"></script>
+    
+    <!-- Load main orchestration last -->
     <script src="popup.js"></script>
   </body>
 </html>

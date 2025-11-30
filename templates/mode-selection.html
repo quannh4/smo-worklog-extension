@@ -1,0 +1,36 @@
+<div
+  style="background: {{TOKEN_BG_COLOR}}; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 4px solid {{TOKEN_BORDER_COLOR}}; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+  <h4 style="
+      margin-top: 0;
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    ">
+    {{TOKEN_TITLE}}
+  </h4>
+  {{TOKEN_CONTENT}}
+</div>
+
+<div style="margin-top: 30px; text-align: center;">
+  <h3 style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 20px;">
+    Choose Your Worklog Method:
+  </h3>
+  
+  <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+    <button id="manualInputBtn" class="success" style="min-width: 150px; padding: 15px 25px; font-size: 16px;">
+      Manual Input
+    </button>
+    <button id="autoBtn" class="info" style="min-width: 150px; padding: 15px 25px; font-size: 16px;">
+      Auto
+    </button>
+  </div>
+  
+  <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2);">
+    <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-size: 13px;">
+      <strong>Manual Input:</strong> Select your own date range and project
+    </p>
+    <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-size: 13px;">
+      <strong>Auto:</strong> Automatically generate worklog from start of month to today based on allocated data
+    </p>
+  </div>
+</div>
+

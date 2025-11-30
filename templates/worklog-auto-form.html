@@ -1,0 +1,35 @@
+<div>
+    <div
+        style="background: rgba(232, 245, 233, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 12px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid rgba(76, 175, 80, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+        <strong style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Auto-Generated Worklog Entries:</strong> <span
+            style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">{{START_DATE}} to
+            {{END_DATE}}</span>
+    </div>
+
+    <div
+        style="background: rgba(255, 243, 224, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 10px; border-radius: 12px; margin-bottom: 20px; border-left: 3px solid rgba(255, 152, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+        <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+            <strong>Tip:</strong> Review and modify the generated worklog entries below. Uncheck entries you don't want to log, and adjust hours as needed.
+        </p>
+    </div>
+
+    <div id="autoWorklogEntries" style="margin-bottom: 20px;">
+        {{WORKLOG_ENTRIES}}
+    </div>
+
+    <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+            <strong>Total Entries:</strong> <span id="totalEntriesCount">{{TOTAL_ENTRIES}}</span>
+        </p>
+        <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+            <strong>Total Hours:</strong> <span id="totalHoursCountAuto">{{TOTAL_HOURS}}</span> hours
+        </p>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <button id="submitBtn" disabled>
+            Submit Worklog
+        </button>
+    </div>
+</div>
+

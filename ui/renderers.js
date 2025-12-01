@@ -403,7 +403,12 @@ async function renderProjectsList(data, currentPage = 1) {
   const projects = data.data || [];
   const pagination = data.pagination || {};
 
-  const projectsRows = projects.map(project => `
+  // Filter out closed projects
+  const activeProjects = projects.filter(project => {
+    return !(project.status && project.status.toLowerCase() === 'closed');
+  });
+
+  const projectsRows = activeProjects.map(project => `
     <tr class="project-row" data-project-id="${project.id}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s ease;">
       <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${project.code || 'N/A'}</td>
       <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${project.name || 'N/A'}</td>

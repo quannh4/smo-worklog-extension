@@ -400,3 +400,56 @@ async function submitWorklog() {
   }
 }
 
+// Add Resource API functions
+async function fetchProjectsList(page = 1, limit = 10) {
+  try {
+    const response = await fetch(
+      `https://sra-api.smartosc.com/api/projects?limit=${limit}&page=${page}&internal=0,1&excludeUser=true`,
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          authorization: `Bearer ${AppState.currentToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP ${response.status}: ${errorText || response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function fetchProjectDetails(projectId) {
+  try {
+    const response = await fetch(
+      `https://sra-api.smartosc.com/api/projects/${projectId}`,
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          authorization: `Bearer ${AppState.currentToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP ${response.status}: ${errorText || response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+

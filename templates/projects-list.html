@@ -1,0 +1,31 @@
+<div>
+    <h2 style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 20px;">Select a Project</h2>
+
+    <div style="max-height: 500px; overflow-y: auto; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <thead>
+                <tr style="background: rgba(255, 255, 255, 0.1); border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                    <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Project Code</th>
+                    <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Project Name</th>
+                    <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Customer</th>
+                    <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="projectsTableBody">
+                {{PROJECTS_ROWS}}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align: center; margin-top: 15px;">
+        <div id="paginationInfo" style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 10px;">
+            {{PAGINATION_INFO}}
+        </div>
+        <button id="loadMoreBtn" class="info" style="display: {{LOAD_MORE_DISPLAY}}; margin-right: 10px;">
+            Load More
+        </button>
+        <button id="backToStartBtn" class="danger">
+            Back
+        </button>
+    </div>
+</div>

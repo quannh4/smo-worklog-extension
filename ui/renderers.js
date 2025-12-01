@@ -396,3 +396,317 @@ function updateTotals() {
   });
 }
 
+// Add Resource renderers
+async function renderProjectsList(data, currentPage = 1) {
+  const worklogContainer = document.getElementById("worklogContainer");
+
+  const projects = data.data || [];
+  const pagination = data.pagination || {};
+
+  const projectsRows = projects.map(project => `
+    <tr class="project-row" data-project-id="${project.id}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s ease;">
+      <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${project.code || 'N/A'}</td>
+      <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${project.name || 'N/A'}</td>
+      <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${project.customerName || 'N/A'}</td>
+      <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${project.status || 'N/A'}</td>
+    </tr>
+  `).join('');
+
+  const paginationInfo = `Page ${pagination.currentPage || 1} of ${pagination.lastPage || 1} (Total: ${pagination.total || 0} projects)`;
+  const hasMore = pagination.currentPage < pagination.lastPage;
+  const loadMoreDisplay = hasMore ? 'inline-block' : 'none';
+
+  const html = await loadTemplate("projects-list", {
+    PROJECTS_ROWS: projectsRows,
+    PAGINATION_INFO: paginationInfo,
+    LOAD_MORE_DISPLAY: loadMoreDisplay,
+  });
+
+  worklogContainer.innerHTML = html;
+
+  // Store current page and data
+  window.currentProjectsPage = currentPage;
+  window.projectsPagination = pagination;
+  window.lastProjectsData = data;
+
+  // Add event listeners for project rows
+  const projectRows = worklogContainer.querySelectorAll(".project-row");
+  projectRows.forEach(row => {
+    // Add hover effect
+    row.addEventListener("mouseenter", () => {
+      row.style.background = "rgba(255, 255, 255, 0.15)";
+      row.style.transform = "translateX(5px)";
+    });
+    row.addEventListener("mouseleave", () => {
+      row.style.background = "transparent";
+      row.style.transform = "translateX(0)";
+    });
+
+    // Add click event
+    row.addEventListener("click", async () => {
+      const projectId = row.dataset.projectId;
+      await loadAndDisplayCrewMembers(projectId);
+    });
+  });
+
+  // Add event listener for load more button
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", async () => {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.textContent = "Loading...";
+      try {
+        const nextPage = currentPage + 1;
+        const data = await fetchProjectsList(nextPage);
+        await renderProjectsList(data, nextPage);
+      } catch (error) {
+        alert(`Error loading projects: ${error.message}`);
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.textContent = "Load More";
+      }
+    });
+  }
+
+  // Add event listener for back button
+  const backToStartBtn = document.getElementById("backToStartBtn");
+  if (backToStartBtn) {
+    backToStartBtn.addEventListener("click", () => {
+      location.reload();
+    });
+  }
+}
+
+async function renderCrewMembers(projectData) {
+  const worklogContainer = document.getElementById("worklogContainer");
+
+  const project = projectData.project || {};
+  const crews = projectData.crews || {};
+  const history = crews.history || [];
+
+  // Process history to group by user and get latest dates
+  const userMap = new Map();
+
+  history.forEach(group => {
+    if (Array.isArray(group)) {
+      group.forEach(member => {
+        const userId = member.id || member.username;
+        if (!userMap.has(userId)) {
+          userMap.set(userId, {
+            username: member.username,
+            name: member.name,
+            title: member.title,
+            startDate: member.startDate,
+            endDate: member.endDate,
+          });
+        } else {
+          // Update with latest dates
+          const existing = userMap.get(userId);
+          const existingEnd = new Date(existing.endDate);
+          const currentEnd = new Date(member.endDate);
+          if (currentEnd > existingEnd) {
+            existing.startDate = member.startDate;
+            existing.endDate = member.endDate;
+          }
+        }
+      });
+    }
+  });
+
+  // Convert to array and sort by end date (most recent first)
+  const allCrewMembers = Array.from(userMap.values()).sort((a, b) => {
+    const dateA = new Date(a.endDate);
+    const dateB = new Date(b.endDate);
+    return dateB - dateA; // Descending order (newest first)
+  });
+
+  // Calculate one month ago
+  const now = new Date();
+  const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+  // Split into recent and older members
+  const recentMembers = [];
+  const olderMembers = [];
+
+  allCrewMembers.forEach(member => {
+    const memberStartDate = new Date(member.startDate);
+    if (memberStartDate >= oneMonthAgo) {
+      recentMembers.push(member);
+    } else {
+      olderMembers.push(member);
+    }
+  });
+
+  // Generate rows for recent members (with checkboxes, all checked by default)
+  const recentCrewRows = recentMembers.map((member, index) => {
+    const startDate = member.startDate ? new Date(member.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+    const endDate = member.endDate ? new Date(member.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+
+    return `
+      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+        <td style="padding: 12px; text-align: center;">
+          <input type="checkbox" class="crew-checkbox recent-crew-checkbox liquid-glass-inline liquid-glass-inline-sm"
+                 data-username="${member.username}"
+                 data-name="${member.name}"
+                 data-title="${member.title}"
+                 data-id="${member.id || member.username}"
+                 checked
+                 style="cursor: pointer;" />
+        </td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${member.username || 'N/A'}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${member.name || 'N/A'}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${member.title || 'N/A'}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${startDate}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${endDate}</td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="6" style="padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.9);">No recent members</td></tr>';
+
+  // Generate rows for older members (with checkboxes, unchecked by default)
+  const olderCrewRows = olderMembers.map((member, index) => {
+    const startDate = member.startDate ? new Date(member.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+    const endDate = member.endDate ? new Date(member.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+
+    return `
+      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+        <td style="padding: 12px; text-align: center;">
+          <input type="checkbox" class="crew-checkbox older-crew-checkbox liquid-glass-inline liquid-glass-inline-sm"
+                 data-username="${member.username}"
+                 data-name="${member.name}"
+                 data-title="${member.title}"
+                 data-id="${member.id || member.username}"
+                 style="cursor: pointer;" />
+        </td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${member.username || 'N/A'}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${member.name || 'N/A'}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${member.title || 'N/A'}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${startDate}</td>
+        <td style="padding: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">${endDate}</td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="6" style="padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.9);">No older members</td></tr>';
+
+  // Hide older section if no older members
+  const olderSectionDisplay = olderMembers.length > 0 ? 'block' : 'none';
+
+  // Get project name and code from stored projects list
+  const selectedProject = window.selectedProjectForResource || {};
+
+  const html = await loadTemplate("crew-members", {
+    PROJECT_NAME: selectedProject.name || 'Unknown',
+    PROJECT_CODE: selectedProject.code || 'N/A',
+    RECENT_CREW_ROWS: recentCrewRows,
+    OLDER_CREW_ROWS: olderCrewRows,
+    OLDER_SECTION_DISPLAY: olderSectionDisplay,
+  });
+
+  worklogContainer.innerHTML = html;
+
+  // Add event listener for username search
+  const usernameSearch = document.getElementById("usernameSearch");
+  if (usernameSearch) {
+    usernameSearch.addEventListener("input", (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const allRows = document.querySelectorAll("#recentCrewBody tr, #olderCrewBody tr");
+
+      allRows.forEach(row => {
+        const username = row.querySelector("td:nth-child(2)")?.textContent.toLowerCase() || "";
+        if (username.includes(searchTerm)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+  }
+
+  // Add event listener for Rebook button
+  const rebookBtn = document.getElementById("rebookBtn");
+  if (rebookBtn) {
+    rebookBtn.addEventListener("click", () => {
+      const selectedMembers = [];
+      const allCheckboxes = document.querySelectorAll(".crew-checkbox:checked");
+
+      allCheckboxes.forEach(cb => {
+        selectedMembers.push({
+          id: cb.dataset.id,
+          username: cb.dataset.username,
+          name: cb.dataset.name,
+          title: cb.dataset.title,
+        });
+      });
+
+      if (selectedMembers.length === 0) {
+        alert("Please select at least one member to rebook.");
+        return;
+      }
+
+      // Show confirmation with selected members
+      const membersList = selectedMembers.map(m => `- ${m.name} (${m.username})`).join('\n');
+      const confirmed = confirm(`Rebook the following ${selectedMembers.length} member(s)?\n\n${membersList}\n\nNote: This is a demo. Actual rebooking API integration would go here.`);
+
+      if (confirmed) {
+        console.log("Selected members for rebooking:", selectedMembers);
+        alert(`Successfully selected ${selectedMembers.length} member(s) for rebooking!`);
+      }
+    });
+  }
+
+  // Add event listeners for navigation buttons
+  const backToProjectsBtn = document.getElementById("backToProjectsBtn");
+  if (backToProjectsBtn) {
+    backToProjectsBtn.addEventListener("click", async () => {
+      const currentPage = window.currentProjectsPage || 1;
+      const data = await fetchProjectsList(currentPage);
+      await renderProjectsList(data, currentPage);
+    });
+  }
+
+  const backToStartBtn = document.getElementById("backToStartBtn");
+  if (backToStartBtn) {
+    backToStartBtn.addEventListener("click", () => {
+      location.reload();
+    });
+  }
+}
+
+async function loadAndDisplayCrewMembers(projectId) {
+  const worklogContainer = document.getElementById("worklogContainer");
+
+  try {
+    // Show loading indicator
+    worklogContainer.innerHTML = `
+      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 30px 50px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.2); text-align: center;">
+          <div style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-size: 18px; margin-bottom: 15px;">
+            Loading project details...
+          </div>
+          <div style="width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3); border-top-color: rgba(255, 255, 255, 0.9); border-radius: 50%; margin: 0 auto; animation: spin 1s linear infinite;"></div>
+        </div>
+      </div>
+      <style>
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      </style>
+    `;
+
+    // Store selected project info
+    const projectsData = window.lastProjectsData || {};
+    const projects = projectsData.data || [];
+    const selectedProject = projects.find(p => p.id == projectId);
+    window.selectedProjectForResource = selectedProject;
+
+    const projectData = await fetchProjectDetails(projectId);
+    await renderCrewMembers(projectData);
+  } catch (error) {
+    worklogContainer.innerHTML = `
+      <div style="padding: 20px; text-align: center;">
+        <p style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 15px;">
+          Error loading project details: ${error.message}
+        </p>
+        <button class="danger" onclick="location.reload()">Go Back</button>
+      </div>
+    `;
+  }
+}
+

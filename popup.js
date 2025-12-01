@@ -18,6 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
     startButton.addEventListener("click", showWorklogTool);
   }
 
+  // Attach event listener to start add resource button
+  const startAddResourceButton = document.getElementById("startAddResourceButton");
+  if (startAddResourceButton) {
+    startAddResourceButton.addEventListener("click", showAddResourceTool);
+  }
+
   // Use event delegation for dynamically created buttons
   document.body.addEventListener("click", function (e) {
     const target = e.target;
@@ -188,4 +194,61 @@ async function loadProjectsWithDateRange() {
 
   // Fetch projects using the selected date
   await loadProjects();
+}
+
+// ===== ADD RESOURCE FLOW =====
+
+async function showAddResourceTool() {
+  const container = document.querySelector(".container");
+  const worklogContainer = document.getElementById("worklogContainer");
+  const initialContent = document.getElementById("initialContent");
+
+  // Remove initial content from DOM
+  if (initialContent) {
+    initialContent.remove();
+  }
+
+  // Show worklog container
+  worklogContainer.style.display = "block";
+
+  // Try to extract token automatically first
+  AppState.currentToken = await findAccessToken();
+
+  // Check if token exists
+  if (!AppState.currentToken) {
+    worklogContainer.innerHTML = `
+      <div style="padding: 20px; text-align: center;">
+        <p style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 15px;">
+          Please login to SRA SmartOSC first to capture your access token.
+        </p>
+        <button class="info" onclick="location.reload()" style="margin-top: 15px;">Go Back</button>
+      </div>
+    `;
+    return;
+  }
+
+  // Show loading message
+  worklogContainer.innerHTML = `
+    <div style="padding: 20px; text-align: center;">
+      <p style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+        Loading projects...
+      </p>
+    </div>
+  `;
+
+  // Fetch and display projects list
+  try {
+    const data = await fetchProjectsList(1);
+    window.lastProjectsData = data;
+    await renderProjectsList(data, 1);
+  } catch (error) {
+    worklogContainer.innerHTML = `
+      <div style="padding: 20px; text-align: center;">
+        <p style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 15px;">
+          Error loading projects: ${error.message}
+        </p>
+        <button class="danger" onclick="location.reload()" style="margin-top: 15px;">Go Back</button>
+      </div>
+    `;
+  }
 }

@@ -1,0 +1,72 @@
+<div>
+    <div style="background: rgba(232, 245, 233, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 12px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid rgba(76, 175, 80, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
+        <strong style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Selected Project:</strong>
+        <span style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">{{PROJECT_NAME}} ({{PROJECT_CODE}})</span>
+    </div>
+
+    <h2 style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 20px;">Crew Members (History)</h2>
+
+    <!-- Search Box -->
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="usernameSearch" placeholder="Search by username..."
+               style="width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9); font-size: 14px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);" />
+    </div>
+
+    <div style="max-height: 500px; overflow-y: auto; margin-bottom: 20px;">
+        <!-- Recent Members Section -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 10px; font-size: 16px;">Recent Members (Last Month)</h3>
+            <table style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2);">
+                <thead>
+                    <tr style="background: rgba(255, 255, 255, 0.1); border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                        <th style="padding: 12px; text-align: center; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600; width: 50px;">Select</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Username</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Name</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Title</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Start Date</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">End Date</th>
+                    </tr>
+                </thead>
+                <tbody id="recentCrewBody">
+                    {{RECENT_CREW_ROWS}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Rebook Button -->
+        <div style="text-align: center; margin: 20px 0;">
+            <button id="rebookBtn" class="success liquid-glass liquid-glass-xl" style="font-size: 16px; padding: 12px 30px;">
+                Rebook Selected Members
+            </button>
+        </div>
+
+        <!-- Older Members Section -->
+        <div style="margin-top: 20px; display: {{OLDER_SECTION_DISPLAY}};">
+            <h3 style="color: rgba(255, 255, 255, 0.8); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 10px; font-size: 16px;">Other Members</h3>
+            <table style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); opacity: 0.6;">
+                <thead>
+                    <tr style="background: rgba(255, 255, 255, 0.1); border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                        <th style="padding: 12px; text-align: center; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600; width: 50px;">Select</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Username</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Name</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Title</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">Start Date</th>
+                        <th style="padding: 12px; text-align: left; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600;">End Date</th>
+                    </tr>
+                </thead>
+                <tbody id="olderCrewBody">
+                    {{OLDER_CREW_ROWS}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 15px;">
+        <button id="backToProjectsBtn" class="info" style="margin-right: 10px;">
+            Back to Projects
+        </button>
+        <button id="backToStartBtn" class="danger">
+            Close
+        </button>
+    </div>
+</div>

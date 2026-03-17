@@ -238,6 +238,14 @@ async function showAddResourceTool() {
 
   // Fetch and display projects list
   try {
+    // Check if required functions are available
+    if (typeof fetchProjectsList === 'undefined') {
+      throw new Error('fetchProjectsList is not defined. Please check if api/api.js is loaded.');
+    }
+    if (typeof renderProjectsList === 'undefined') {
+      throw new Error('renderProjectsList is not defined. Please check if ui/renderers.js is loaded.');
+    }
+
     const data = await fetchProjectsList(1);
     window.lastProjectsData = data;
     await renderProjectsList(data, 1);

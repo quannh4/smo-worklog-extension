@@ -21,7 +21,10 @@ function getWeekdaysBetween(startDate, endDate) {
 
 function getStartOfMonth() {
   const today = new Date();
-  return new Date(today.getFullYear(), today.getMonth(), 1);
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  // Set to midnight local time to avoid timezone issues
+  startOfMonth.setHours(0, 0, 0, 0);
+  return startOfMonth;
 }
 
 function getStartOfWeek() {
@@ -32,6 +35,20 @@ function getStartOfWeek() {
 }
 
 function formatDate(date) {
-  return date.toISOString().split("T")[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getEndOfMonth() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  // Get the last day of the current month (day 0 of next month)
+  const lastDay = new Date(year, month + 1, 0);
+  // Set to midnight local time to avoid timezone issues
+  lastDay.setHours(0, 0, 0, 0);
+  return lastDay;
 }
 

@@ -682,8 +682,8 @@ async function renderCrewMembers(projectData) {
   const olderMembers = [];
 
   allCrewMembers.forEach(member => {
-    const memberStartDate = new Date(member.startDate);
-    if (memberStartDate >= oneMonthAgo) {
+    const memberEndDate = new Date(member.endDate);
+    if (memberEndDate >= oneMonthAgo) {
       recentMembers.push(member);
     } else {
       olderMembers.push(member);
@@ -943,9 +943,47 @@ async function renderRebookView() {
     return;
   }
 
+  // Weekend validation helper functions
+  const weekendHelpers = {
+    isWeekend: (date) => {
+      const d = date instanceof Date ? date : new Date(date);
+      const day = d.getDay();
+      return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
+    },
+    getNextWeekday: (date) => {
+      const d = date instanceof Date ? new Date(date) : new Date(date);
+      const day = d.getDay();
+      if (day === 0) { // Sunday -> Monday
+        d.setDate(d.getDate() + 1);
+      } else if (day === 6) { // Saturday -> Monday
+        d.setDate(d.getDate() + 2);
+      }
+      return d;
+    },
+    getPreviousWeekday: (date) => {
+      const d = date instanceof Date ? new Date(date) : new Date(date);
+      const day = d.getDay();
+      if (day === 0) { // Sunday -> Friday
+        d.setDate(d.getDate() - 2);
+      } else if (day === 6) { // Saturday -> Friday
+        d.setDate(d.getDate() - 1);
+      }
+      return d;
+    }
+  };
+
   // Get start and end of current month
-  const startOfMonth = getStartOfMonth();
-  const endOfMonth = getEndOfMonth();
+  let startOfMonth = getStartOfMonth();
+  let endOfMonth = getEndOfMonth();
+
+  // Adjust to weekdays if they fall on weekends
+  if (weekendHelpers.isWeekend(startOfMonth)) {
+    startOfMonth = weekendHelpers.getNextWeekday(startOfMonth);
+  }
+  if (weekendHelpers.isWeekend(endOfMonth)) {
+    endOfMonth = weekendHelpers.getPreviousWeekday(endOfMonth);
+  }
+
   const startDateStr = formatDate(startOfMonth);
   const endDateStr = formatDate(endOfMonth);
 
@@ -981,6 +1019,75 @@ async function renderRebookView() {
 
   worklogContainer.innerHTML = html;
 
+  // Add weekend validation for date inputs
+  const startDateInput = document.getElementById("rebookStartDate");
+  const endDateInput = document.getElementById("rebookEndDate");
+
+  // Show notification helper
+  const showWeekendNotification = (adjustedDate) => {
+    const notification = document.createElement('div');
+    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(255, 152, 0, 0.9); color: white; padding: 12px 20px; border-radius: 8px; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); animation: slideIn 0.3s ease;';
+    notification.textContent = `Weekend date adjusted to ${adjustedDate}`;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.style.animation = 'slideOut 0.3s ease';
+      setTimeout(() => notification.remove(), 300);
+    }, 2500);
+  };
+
+  // Validate and adjust start date
+  if (startDateInput) {
+    startDateInput.addEventListener("change", (e) => {
+      const selectedDate = e.target.value;
+      if (weekendHelpers.isWeekend(selectedDate)) {
+        const adjustedDate = weekendHelpers.getNextWeekday(selectedDate).toISOString().split('T')[0];
+        e.target.value = adjustedDate;
+        showWeekendNotification(adjustedDate);
+      }
+    });
+  }
+
+  // Validate and adjust end date
+  if (endDateInput) {
+    endDateInput.addEventListener("change", (e) => {
+      const selectedDate = e.target.value;
+      if (weekendHelpers.isWeekend(selectedDate)) {
+        const adjustedDate = weekendHelpers.getPreviousWeekday(selectedDate).toISOString().split('T')[0];
+        e.target.value = adjustedDate;
+        showWeekendNotification(adjustedDate);
+      }
+    });
+  }
+
+  // Add CSS animations for notifications
+  if (!document.getElementById('weekend-notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'weekend-notification-styles';
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   // Add event listener for cancel button
   const cancelRebookBtn = document.getElementById("cancelRebookBtn");
   if (cancelRebookBtn) {
@@ -1004,8 +1111,8 @@ async function renderRebookView() {
   const submitRebookBtn = document.getElementById("submitRebookBtn");
   if (submitRebookBtn) {
     submitRebookBtn.addEventListener("click", async () => {
-      const startDate = document.getElementById("rebookStartDate").value;
-      const endDate = document.getElementById("rebookEndDate").value;
+      let startDate = document.getElementById("rebookStartDate").value;
+      let endDate = document.getElementById("rebookEndDate").value;
 
       if (!startDate || !endDate) {
         // Show error UI instead of alert
@@ -1022,6 +1129,16 @@ async function renderRebookView() {
           });
         }
         return;
+      }
+
+      // Validate and adjust weekend dates one more time before submission
+      if (weekendHelpers.isWeekend(startDate)) {
+        startDate = weekendHelpers.getNextWeekday(startDate).toISOString().split('T')[0];
+        document.getElementById("rebookStartDate").value = startDate;
+      }
+      if (weekendHelpers.isWeekend(endDate)) {
+        endDate = weekendHelpers.getPreviousWeekday(endDate).toISOString().split('T')[0];
+        document.getElementById("rebookEndDate").value = endDate;
       }
 
       if (new Date(startDate) > new Date(endDate)) {

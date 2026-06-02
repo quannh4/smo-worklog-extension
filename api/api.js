@@ -387,6 +387,15 @@ async function submitWorklog() {
         : "";
     }
 
+    // Check for API-level errors even on HTTP 200
+    if (result.errors && result.errors.length > 0) {
+      const errorLines = result.errors.flatMap(e =>
+        (e.messages || []).flatMap(m => (Array.isArray(m) ? m : [m]))
+      );
+      const errorMessage = [result.message, ...errorLines].filter(Boolean).join("\n");
+      throw new Error(errorMessage);
+    }
+
     // Extract success message from result
     const successMessage = result.message || "Worklog submitted successfully";
 

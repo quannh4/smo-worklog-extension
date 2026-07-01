@@ -1,7 +1,9 @@
 <div>
-    <div style="background: rgba(232, 245, 233, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 12px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid rgba(76, 175, 80, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);">
-        <strong style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">Selected Project:</strong>
-        <span style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">{{PROJECT_NAME}} ({{PROJECT_CODE}})</span>
+    <div class="form-group" style="margin-bottom: 20px;">
+        <label style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: 600; display: block; margin-bottom: 6px;">Target Project:</label>
+        <select id="rebookProjectSelect">
+            {{PROJECT_OPTIONS}}
+        </select>
     </div>
 
     <h2 style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 20px;">Rebook Members</h2>

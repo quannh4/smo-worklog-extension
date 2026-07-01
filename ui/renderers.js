@@ -923,6 +923,25 @@ async function renderRebookView() {
   const selectedMembers = window.selectedMembersForRebook || [];
   const selectedProject = window.selectedProjectForResource || {};
 
+  // Fetch all projects for the project selector (across all pages)
+  if (!window.allProjectsForRebook) {
+    try {
+      let allProjects = [];
+      let page = 1;
+      while (true) {
+        const data = await fetchProjectsList(page, 50);
+        const projects = (data.data || []).filter(p => p.status?.toLowerCase() !== 'closed');
+        allProjects = allProjects.concat(projects);
+        const pagination = data.pagination || {};
+        if (page >= (pagination.lastPage || 1)) break;
+        page++;
+      }
+      window.allProjectsForRebook = allProjects;
+    } catch (e) {
+      window.allProjectsForRebook = selectedProject.id ? [selectedProject] : [];
+    }
+  }
+
   if (selectedMembers.length === 0) {
     // Show error UI instead of alert
     const errorHtml = await loadTemplate("rebook-error", {
@@ -1009,15 +1028,27 @@ async function renderRebookView() {
     `;
   }).join('');
 
+  const projectOptions = (window.allProjectsForRebook || []).map(p =>
+    `<option value="${p.id}" ${String(p.id) === String(selectedProject.id) ? 'selected' : ''}>${p.name} (${p.code})</option>`
+  ).join('');
+
   const html = await loadTemplate("rebook-view", {
-    PROJECT_NAME: selectedProject.name || 'Unknown',
-    PROJECT_CODE: selectedProject.code || 'N/A',
+    PROJECT_OPTIONS: projectOptions || `<option value="${selectedProject.id}" selected>${selectedProject.name} (${selectedProject.code})</option>`,
     START_DATE: startDateStr,
     END_DATE: endDateStr,
     MEMBER_ROWS: memberRows,
   });
 
   worklogContainer.innerHTML = html;
+
+  // Sync project selector changes to window.selectedProjectForResource
+  const rebookProjectSelect = document.getElementById("rebookProjectSelect");
+  if (rebookProjectSelect) {
+    rebookProjectSelect.addEventListener("change", (e) => {
+      const chosen = (window.allProjectsForRebook || []).find(p => String(p.id) === String(e.target.value));
+      if (chosen) window.selectedProjectForResource = chosen;
+    });
+  }
 
   // Add weekend validation for date inputs
   const startDateInput = document.getElementById("rebookStartDate");
@@ -1345,11 +1376,36 @@ async function renderRebookView() {
         const result = await submitQuickBooking(projectId, userBookingData);
 
         // Log the response data
-        console.log('=== REBOOK RESPONSE (SUCCESS) ===');
+        console.log('=== REBOOK RESPONSE ===');
         console.log('Response:', JSON.stringify(result, null, 2));
-        console.log('==================================');
+        console.log('=======================');
 
-        // Show success UI
+        // Treat as error if no bookings succeeded
+        const totalSuccess = result.totalSuccess ?? userBookingData.length;
+        const hasErrors = result.errors && result.errors.length > 0;
+        const allFailed = totalSuccess === 0 && hasErrors;
+
+        if (allFailed) {
+          const errorMessages = result.errors
+            .flatMap(e => e.messages)
+            .flat()
+            .filter((m, i, arr) => arr.indexOf(m) === i) // dedupe
+            .join('\n');
+          const errorHtml = await loadTemplate("rebook-error", {
+            ERROR_MESSAGE: `${result.message || 'Booking failed.'}\n${errorMessages}`,
+          });
+          worklogContainer.innerHTML = errorHtml;
+
+          const closeErrorBtn = document.getElementById("closeRebookErrorBtn");
+          if (closeErrorBtn) {
+            closeErrorBtn.addEventListener("click", () => {
+              renderRebookView();
+            });
+          }
+          return;
+        }
+
+        // Show success UI (partial success also lands here)
         const selectedProject = window.selectedProjectForResource || {};
         const successMessage = result.message || `Successfully rebooked ${userBookingData.length} member(s)!`;
 

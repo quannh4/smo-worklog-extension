@@ -12,7 +12,7 @@
                style="width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9); font-size: 14px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);" />
     </div>
 
-    <div style="max-height: 500px; overflow-y: auto; margin-bottom: 20px;">
+    <div style="margin-bottom: 120px;">
         <!-- Recent Members Section -->
         <div style="margin-bottom: 20px;">
             <h3 style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); margin-bottom: 10px; font-size: 16px;">Recent Members (Last Month)</h3>
@@ -32,13 +32,6 @@
                     {{RECENT_CREW_ROWS}}
                 </tbody>
             </table>
-        </div>
-
-        <!-- Rebook Button -->
-        <div style="text-align: center; margin: 20px 0;">
-            <button id="rebookBtn" class="success liquid-glass liquid-glass-xl" style="font-size: 16px; padding: 12px 30px;">
-                Rebook Selected Members
-            </button>
         </div>
 
         <!-- Older Members Section -->
@@ -63,12 +56,10 @@
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 15px;">
-        <button id="backToProjectsBtn" class="info" style="margin-right: 10px;">
-            Back to Projects
-        </button>
-        <button id="backToStartBtn" class="danger">
-            Close
-        </button>
+    <!-- Sticky bottom action bar -->
+    <div style="position: sticky; bottom: 0; text-align: center; padding: 10px 0; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;">
+        <button id="rebookBtn" class="success" style="margin-right: 10px;">Rebook Selected Members</button>
+        <button id="backToProjectsBtn" class="info" style="margin-right: 10px;">Back to Projects</button>
+        <button id="backToStartBtn" class="danger">Close</button>
     </div>
 </div>

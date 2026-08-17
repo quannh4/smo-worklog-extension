@@ -36,7 +36,16 @@
       </defs>
     </svg>
     <div class="container liquid-glass liquid-glass-md">
-      <div id="initialContent">
+      <div id="appLoadingScreen" style="padding: 50px 20px; text-align: center;">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill"></div>
+        </div>
+        <p style="margin-top: 15px; color: rgba(255, 255, 255, 0.85); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);">
+          Loading...
+        </p>
+      </div>
+
+      <div id="initialContent" style="display: none">
         <h1>SMO Worklog Tool</h1>
         <p class="subtitle">Easily log your work hours to SRA SmartOSC</p>
 

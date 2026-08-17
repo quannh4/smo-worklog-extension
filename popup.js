@@ -31,6 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle different button clicks
     if (target.id === "continueTokenBtn") {
       continueWithToken();
+    } else if (target.id === "openSraBtn") {
+      window.open("https://sra.smartosc.com", "_blank");
     } else if (target.id === "manualInputBtn") {
       showManualInputFlow();
     } else if (target.id === "autoBtn") {
@@ -45,6 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
       showTokenInput().catch(console.error);
     } else if (target.classList.contains("retryLoadBtn")) {
       loadProjectsWithDateRange();
+    } else if (target.id === "logoutBtn") {
+      logout();
     }
   });
 
@@ -58,7 +62,114 @@ document.addEventListener("DOMContentLoaded", function () {
       updateWorklogPreview();
     }
   });
+
+  // Run the permission check behind a loading screen, then reveal the
+  // initial content with the correct buttons already in place - avoids
+  // the "Add Resource" button flashing on screen then disappearing.
+  initializeApp();
 });
+
+// Clears the captured token/user data and sends the popup back to the
+// initial screen, so the user can log in again (e.g. with a different
+// account).
+async function logout() {
+  const confirmed = confirm("Log out and clear your saved access token?");
+  if (!confirmed) {
+    return;
+  }
+
+  await chrome.storage.local.remove([
+    "smo_token",
+    "token_captured_at",
+    "smo_userId",
+    "smo_username",
+    "smo_userName",
+    "smo_userEmail",
+  ]);
+
+  location.reload();
+}
+
+async function initializeApp() {
+  const loadingScreen = document.getElementById("appLoadingScreen");
+  const initialContent = document.getElementById("initialContent");
+  const startAddResourceButton = document.getElementById("startAddResourceButton");
+
+  // Keep the loading screen visible for at least this long, even if the
+  // checks resolve instantly, so it reads as a deliberate loading step
+  // instead of a quick flash.
+  const MIN_LOADING_TIME_MS = 600;
+  const minLoadingTimer = new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME_MS));
+
+  // Whether we should skip the "Logging Work / Add Resource" screen entirely
+  // and go straight to the "Open SRA" login screen instead.
+  let needsLogin = false;
+
+  try {
+    const token = await findAccessToken();
+
+    if (!token) {
+      needsLogin = true;
+    } else {
+      AppState.currentToken = token;
+
+      const tokenValid = await isTokenValid();
+
+      if (tokenValid === false) {
+        // Token is expired/invalid - clear it and force the login screen
+        // instead of showing the main screen with a token that will fail.
+        needsLogin = true;
+        AppState.currentToken = null;
+        AppState.currentUserId = null;
+        AppState.currentUsername = null;
+        await chrome.storage.local.remove([
+          "smo_token",
+          "token_captured_at",
+          "smo_userId",
+          "smo_username",
+          "smo_userName",
+          "smo_userEmail",
+        ]);
+      } else {
+        // Valid, or inconclusive (e.g. network error) - proceed as normal.
+        const hasPermission = await checkViewProjectListPermission();
+        if (hasPermission === false && startAddResourceButton) {
+          startAddResourceButton.style.display = "none";
+        }
+      }
+    }
+  } catch (error) {
+    // Inconclusive - fall back to showing the normal screen
+  } finally {
+    await minLoadingTimer;
+    if (loadingScreen) {
+      loadingScreen.style.display = "none";
+    }
+
+    if (needsLogin) {
+      await showLoginRequiredScreen();
+    } else if (initialContent) {
+      initialContent.style.display = "";
+    }
+  }
+}
+
+// Skips the "Logging Work / Add Resource" screen and shows the token/login
+// screen (with the "Open SRA" + "Continue with Token" buttons) directly.
+// Used when no token is captured yet, or the saved token has expired.
+async function showLoginRequiredScreen() {
+  const initialContent = document.getElementById("initialContent");
+  const worklogContainer = document.getElementById("worklogContainer");
+
+  if (initialContent) {
+    initialContent.remove();
+  }
+  if (worklogContainer) {
+    worklogContainer.style.display = "block";
+  }
+
+  await showTokenInput();
+}
 
 async function showWorklogTool() {
   const container = document.querySelector(".container");

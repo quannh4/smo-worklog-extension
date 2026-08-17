@@ -11,6 +11,35 @@ async function findAccessToken() {
     return null;
 }
 
+// Checks whether AppState.currentToken is still valid (not expired/revoked)
+// by hitting a lightweight authenticated endpoint. Returns:
+//   true  - token is valid
+//   false - token is expired/invalid (401/403)
+//   null  - could not determine (network error, server error, etc.)
+async function isTokenValid() {
+    try {
+        const response = await fetch(
+            "https://sra-api.smartosc.com/api/users/current-user",
+            {
+                headers: {
+                    accept: "application/json, text/plain, */*",
+                    authorization: `Bearer ${AppState.currentToken}`,
+                },
+            }
+        );
+
+        if (response.ok) {
+            return true;
+        }
+        if (response.status === 401 || response.status === 403) {
+            return false;
+        }
+        return null;
+    } catch (error) {
+        return null;
+    }
+}
+
 async function fetchCurrentUserId() {
     const worklogContainer = document.getElementById("worklogContainer");
 

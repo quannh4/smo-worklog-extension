@@ -468,15 +468,51 @@ async function fetchProjectsList(page = 1, limit = 10) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
+
+      // Try to parse structured error info (e.g. { error: { code, context: { permission } } })
+      // so callers can detect a permission-denied 403 without string-matching.
+      let errorCode;
+      let errorPermission;
+      try {
+        const parsed = JSON.parse(errorText);
+        errorCode = parsed?.error?.code;
+        errorPermission = parsed?.error?.context?.permission;
+      } catch (parseErr) {
+        // Response body wasn't JSON - ignore, fall back to raw text below
+      }
+
+      const err = new Error(
         `HTTP ${response.status}: ${errorText || response.statusText}`
       );
+      err.status = response.status;
+      err.code = errorCode;
+      err.permission = errorPermission;
+      throw err;
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
     throw error;
+  }
+}
+
+// Checks whether the current user has permission to view the projects list
+// (required for the "Add Resource" flow). Returns:
+//   true  - user has permission
+//   false - user was denied specifically due to missing VIEW_PROJECT_LIST permission
+//   null  - could not determine (no token, network error, etc.) - caller should
+//           not hide the button in this case, since it's inconclusive
+async function checkViewProjectListPermission() {
+  try {
+    // Cheap check - only need to know if the call succeeds, not the actual data
+    await fetchProjectsList(1, 1);
+    return true;
+  } catch (error) {
+    if (error.status === 403 && (error.code === 1010005 || error.permission === "VIEW_PROJECT_LIST")) {
+      return false;
+    }
+    return null;
   }
 }
 

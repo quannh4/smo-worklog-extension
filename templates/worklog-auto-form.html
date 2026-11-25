@@ -13,6 +13,16 @@
         </p>
     </div>
 
+    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <label for="autoTypeOfWorkAll" style="color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); font-weight: bold;">
+            Type of Work (apply to all):
+        </label>
+        <select id="autoTypeOfWorkAll"
+                style="flex: 1; min-width: 180px; padding: 6px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9);">
+            {{TYPE_OF_WORK_OPTIONS}}
+        </select>
+    </div>
+
     <div id="autoWorklogEntries" style="margin-bottom: 20px;">
         {{WORKLOG_ENTRIES}}
     </div>

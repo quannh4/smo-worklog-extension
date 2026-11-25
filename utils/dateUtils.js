@@ -27,6 +27,13 @@ function getStartOfMonth() {
   return startOfMonth;
 }
 
+function getStartOfPreviousMonth(refDate = new Date()) {
+  // First day of the month before refDate (handles January -> December of previous year)
+  const start = new Date(refDate.getFullYear(), refDate.getMonth() - 1, 1);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
 function getStartOfWeek() {
   const today = new Date();
   const startOfWeek = new Date(today);

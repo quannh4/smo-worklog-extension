@@ -414,7 +414,9 @@ button:disabled:hover {
     0 0 0 2px rgba(100, 149, 237, 0.2);
 }
 
-.form-group select option {
+.form-group select option,
+#autoTypeOfWorkAll option,
+.auto-worklog-type option {
   background: rgba(102, 126, 234, 0.95);
   color: white;
 }
